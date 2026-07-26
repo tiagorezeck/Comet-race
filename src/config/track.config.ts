@@ -26,43 +26,43 @@ export const SECTOR_CONFIGS: Record<VisualState, { name: string; color: string; 
 // 12 Nodes forming a sleek 2.5D isometric race circuit loop with pit lane branching
 export const TRACK_NODES: TrackNode[] = [
   // 1. Parking / Entry Gate
-  { id: 'node_parked', name: 'Estacionamento', visualState: 'GATE_PARKED', x: 80, y: 380, rotation: 0, sectorId: 'PARKED' },
-  { id: 'node_checkin', name: 'Portão de Check-in', visualState: 'GATE_CHECKIN', x: 180, y: 380, rotation: 15, sectorId: 'CHECKIN' },
+  { id: 'node_parked', name: 'Estacionamento de Entrada', visualState: 'GATE_PARKED', x: 100, y: 150, rotation: 30, sectorId: 'PARKED' },
+  { id: 'node_checkin', name: 'Portão de Check-in', visualState: 'GATE_CHECKIN', x: 190, y: 190, rotation: 30, sectorId: 'CHECKIN' },
   
   // 2. Diagnostic Curve
-  { id: 'node_diag_1', name: 'Primeira Volta (Entrada)', visualState: 'CURVE_DIAGNOSIS', x: 290, y: 340, rotation: -30, sectorId: 'DIAGNOSIS' },
-  { id: 'node_diag_2', name: 'Curva de Diagnóstico', visualState: 'CURVE_DIAGNOSIS', x: 380, y: 220, rotation: -60, sectorId: 'DIAGNOSIS' },
+  { id: 'node_diag_1', name: 'Primeira Volta (Entrada)', visualState: 'CURVE_DIAGNOSIS', x: 340, y: 110, rotation: 0, sectorId: 'DIAGNOSIS' },
+  { id: 'node_diag_2', name: 'Curva de Diagnóstico', visualState: 'CURVE_DIAGNOSIS', x: 420, y: 110, rotation: 0, sectorId: 'DIAGNOSIS' },
   
   // 3. Approval Tower
-  { id: 'node_approval', name: 'Torre de Controle (Aprovação)', visualState: 'TOWER_APPROVAL', x: 480, y: 120, rotation: 0, sectorId: 'APPROVAL' },
+  { id: 'node_approval', name: 'Torre de Controle (Aprovação)', visualState: 'TOWER_APPROVAL', x: 690, y: 110, rotation: 0, sectorId: 'APPROVAL' },
   
   // 4. Pit Lane / Boxes Complex (Main execution area)
-  { id: 'node_box_1', name: 'Box 01 (Carlos)', visualState: 'BOX_RUNNING', x: 620, y: 120, rotation: 0, sectorId: 'BOX' },
-  { id: 'node_box_2', name: 'Box 02 (Pedro)', visualState: 'BOX_RUNNING', x: 740, y: 120, rotation: 0, sectorId: 'BOX' },
-  { id: 'node_box_3', name: 'Box 03 (João)', visualState: 'BOX_RUNNING', x: 860, y: 120, rotation: 0, sectorId: 'BOX' },
+  { id: 'node_box_1', name: 'Box 01 (Carlos)', visualState: 'BOX_RUNNING', x: 310, y: 290, rotation: 0, sectorId: 'BOX' },
+  { id: 'node_box_2', name: 'Box 02 (Pedro)', visualState: 'BOX_RUNNING', x: 355, y: 290, rotation: 0, sectorId: 'BOX' },
+  { id: 'node_box_3', name: 'Box 03 (João)', visualState: 'BOX_RUNNING', x: 400, y: 290, rotation: 0, sectorId: 'BOX' },
   
   // 5. StandBy Patio (Side track branch)
-  { id: 'node_standby', name: 'Área de Stand By', visualState: 'PATIO_STANDBY', x: 680, y: 220, rotation: 90, sectorId: 'STANDBY' },
+  { id: 'node_standby', name: 'Área de Stand By', visualState: 'PATIO_STANDBY', x: 100, y: 380, rotation: 90, sectorId: 'STANDBY' },
   
   // 6. Test Track / Acceleration Straight
-  { id: 'node_test', name: 'Reta de Testes', visualState: 'TRACK_TEST', x: 920, y: 280, rotation: 90, sectorId: 'TEST' },
+  { id: 'node_test', name: 'Reta de Testes', visualState: 'TRACK_TEST', x: 920, y: 310, rotation: 90, sectorId: 'TEST' },
   
   // 7. Finish Straight
-  { id: 'node_finish', name: 'Reta Final', visualState: 'FINISH_LINE', x: 720, y: 380, rotation: 180, sectorId: 'FINISH' },
+  { id: 'node_finish', name: 'Reta Final', visualState: 'FINISH_LINE', x: 910, y: 490, rotation: 180, sectorId: 'FINISH' },
   
   // 8. Podium / Customer Delivery
-  { id: 'node_podium', name: 'Pódio de Entrega', visualState: 'PODIUM_DELIVERY', x: 450, y: 380, rotation: 180, sectorId: 'PODIUM' },
+  { id: 'node_podium', name: 'Pódio de Entrega', visualState: 'PODIUM_DELIVERY', x: 720, y: 520, rotation: 180, sectorId: 'PODIUM' },
 ];
 
 export const TRACK_CONFIG = {
-  viewBoxWidth: 1000,
-  viewBoxHeight: 500,
-  asphaltColor: '#2A2F37',
+  viewBoxWidth: 1200,
+  viewBoxHeight: 620,
+  asphaltColor: '#20252E',
   backgroundColor: '#0B0F17',
   panelColor: '#141A24',
   boxColor: '#1B2330',
   stripeColor: '#ECECEC',
-  grassColor: '#1C5E35',
-  escapeColor: '#B5442D',
+  grassColor: '#113A23',
+  escapeColor: '#993322',
   accentOrange: '#FF6B00',
 };
