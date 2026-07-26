@@ -1,5 +1,5 @@
 import { VisualState } from '../types/race';
-import { TRACK_NODES, TrackNode } from '../config/track.config';
+import { TRACK_NODES, TrackNode, calculateDynamicBoxX } from '../config/track.config';
 
 export class PhysicsEngine {
   static getNodeForState(state: VisualState): TrackNode {
@@ -12,11 +12,12 @@ export class PhysicsEngine {
     visualState: VisualState,
     vehicleIndexInNode: number = 0,
     progress: number = 50,
-    boxNumber?: number
+    boxNumber?: number,
+    totalBoxesCount: number = 10
   ): { x: number; y: number; rotation: number } {
     if (visualState === 'BOX_RUNNING') {
-      const targetBoxIndex = boxNumber ? boxNumber - 1 : (vehicleIndexInNode % 10);
-      const boxX = 270 + targetBoxIndex * 42;
+      const targetBoxIndex = boxNumber ? boxNumber - 1 : (vehicleIndexInNode % Math.max(1, totalBoxesCount));
+      const { boxX } = calculateDynamicBoxX(targetBoxIndex, totalBoxesCount, 240, 460);
       return {
         x: boxX,
         y: 288,
@@ -40,3 +41,4 @@ export class PhysicsEngine {
     };
   }
 }
+

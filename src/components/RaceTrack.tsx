@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useRaceStore } from '../stores/useRaceStore';
 import { CarComponent } from './CarComponent';
-import { TRACK_CONFIG, TRACK_NODES } from '../config/track.config';
+import { TRACK_CONFIG, TRACK_NODES, calculateDynamicBoxX } from '../config/track.config';
 import { PhysicsEngine } from '../engine/physicsEngine';
 import {
   ZoomIn,
@@ -11,15 +11,7 @@ import {
   Sun,
   CloudRain,
   Flame,
-  Trophy,
   CloudSun,
-  Wrench,
-  ShieldAlert,
-  Flag,
-  Search,
-  Gauge,
-  Sparkles,
-  Building,
 } from 'lucide-react';
 
 export const RaceTrack: React.FC = () => {
@@ -61,16 +53,19 @@ export const RaceTrack: React.FC = () => {
     }
   };
 
-  // Coordinates for the 10 Pit Boxes across x=270 to x=648 (spacing 42px)
-  const pitBoxSlots = Array.from({ length: 10 }, (_, i) => {
-    const boxNum = i + 1;
-    const boxX = 270 + i * 42;
-    const pBox = pitBoxes.find((b) => b.number === boxNum);
-    const mech = pBox ? mechanics.find((m) => m.id === pBox.mechanicId) : null;
+  // Dynamic Pit Boxes Layout Calculation (Min 5, Max 20)
+  const totalBoxesCount = Math.max(5, Math.min(20, pitBoxes.length || 10));
+  const pitBuildingStartX = 240;
+  const pitBuildingWidth = 460;
+  const boxWidth = Math.min(42, pitBuildingWidth / totalBoxesCount);
+
+  const dynamicPitSlots = pitBoxes.slice(0, totalBoxesCount).map((pBox, idx) => {
+    const { boxX } = calculateDynamicBoxX(idx, totalBoxesCount, pitBuildingStartX, pitBuildingWidth);
+    const mech = mechanics.find((m) => m.id === pBox.mechanicId);
     const currentVehicle = vehicles.find(
-      (v) => v.assignedBoxId === pBox?.id && v.visualState === 'BOX_RUNNING'
+      (v) => v.assignedBoxId === pBox.id && v.visualState === 'BOX_RUNNING'
     );
-    return { boxNum, boxX, pBox, mech, currentVehicle };
+    return { boxIndex: idx, boxNum: pBox.number || idx + 1, boxX, pBox, mech, currentVehicle };
   });
 
   return (
@@ -82,7 +77,7 @@ export const RaceTrack: React.FC = () => {
         <div className="bg-[#141A24]/90 backdrop-blur-md border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-white flex items-center gap-2 font-mono shadow-md">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
           <span className="font-bold text-[#FF6B00]">RACE CONTROL ISOMÉTRICO 2.5D</span>
-          <span className="text-gray-400">| 8 SETORES TÉCNICOS</span>
+          <span className="text-gray-400">| {totalBoxesCount} BOXES DINÂMICOS</span>
         </div>
 
         {/* Weather Indicator */}
@@ -145,9 +140,19 @@ export const RaceTrack: React.FC = () => {
               <stop offset="100%" stopColor="#0B2616" />
             </linearGradient>
 
-            <linearGradient id="roofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#2D3748" />
-              <stop offset="100%" stopColor="#1A202C" />
+            <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#0284C7" stopOpacity="0.4" />
+            </linearGradient>
+
+            <linearGradient id="headlightCone" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#FEF08A" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#FEF08A" stopOpacity="0" />
+            </linearGradient>
+
+            <linearGradient id="podiumSpotlight" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.0" />
             </linearGradient>
 
             {/* Neon Glow Filters */}
@@ -159,7 +164,7 @@ export const RaceTrack: React.FC = () => {
               </feMerge>
             </filter>
 
-            {/* Red & White Zebra Pattern */}
+            {/* Red & White Zebra Curbs Pattern */}
             <pattern id="zebraPattern" width="16" height="8" patternUnits="userSpaceOnUse">
               <rect x="0" y="0" width="8" height="8" fill="#EF4444" />
               <rect x="8" y="0" width="8" height="8" fill="#FFFFFF" />
@@ -188,13 +193,12 @@ export const RaceTrack: React.FC = () => {
 
           {/* Safety Car & Ambulance (Bottom Left Service Bay) */}
           <g transform="translate(60, 520)">
-            <rect x="0" y="0" width="70" height="40" rx="6" fill="#141A24" stroke="#1E293B" strokeWidth="1" />
-            <text x="35" y="14" fill="#94A3B8" fontSize="7" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+            <rect x="0" y="0" width="80" height="40" rx="6" fill="#141A24" stroke="#1E293B" strokeWidth="1" />
+            <text x="40" y="14" fill="#94A3B8" fontSize="7" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
               SERVIÇO / GUINCHO
             </text>
-            {/* Tow Truck icon */}
-            <rect x="10" y="20" width="22" height="12" rx="2" fill="#EAB308" />
-            <rect x="38" y="20" width="22" height="12" rx="2" fill="#EF4444" />
+            <rect x="8" y="20" width="28" height="14" rx="2" fill="#EAB308" />
+            <rect x="42" y="20" width="28" height="14" rx="2" fill="#EF4444" />
           </g>
 
           {/* Spectator Grandstands (Arquibancada Top Center) */}
@@ -203,6 +207,16 @@ export const RaceTrack: React.FC = () => {
             <text x="80" y="14" fill="#38BDF8" fontSize="8" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
               ARQUIBANCADA VIP PADDOCK
             </text>
+          </g>
+
+          {/* Circuit Floodlights / Spotlights Towers */}
+          <g transform="translate(200, 60)">
+            <circle cx="0" cy="0" r="14" fill="#FEF08A" opacity="0.15" />
+            <circle cx="0" cy="0" r="4" fill="#FEF08A" />
+          </g>
+          <g transform="translate(950, 60)">
+            <circle cx="0" cy="0" r="14" fill="#FEF08A" opacity="0.15" />
+            <circle cx="0" cy="0" r="4" fill="#FEF08A" />
           </g>
 
           {/* 2. Racetrack Outer Curbs / Zebras (Red/White Edge Lines) */}
@@ -235,7 +249,7 @@ export const RaceTrack: React.FC = () => {
             opacity="0.5"
           />
 
-          {/* 4. Pit Lane Branch Loop (Entry from Diagnóstico -> Pit Complex -> Re-entry to Reta Final) */}
+          {/* 4. Pit Lane Branch Loop */}
           <path
             d="M 230,220 L 250,288 L 680,288 L 740,490"
             fill="none"
@@ -254,10 +268,9 @@ export const RaceTrack: React.FC = () => {
           />
 
           {/* ========================================================================= */}
-          {/* SECTOR 1: ENTRADA DA OFICINA & GRID DE LARGADA (CHECK-IN) */}
+          {/* SECTOR 1: ENTRADA DA OFICINA & PORTÃO (CHECK-IN) */}
           {/* ========================================================================= */}
           <g transform="translate(90, 130)">
-            {/* Entrance Gate Portal Structure */}
             <rect x="0" y="0" width="110" height="50" rx="8" fill="#141A24" stroke="#3B82F6" strokeWidth="1.5" />
             <rect x="5" y="5" width="100" height="20" rx="4" fill="#1E293B" />
             <text x="55" y="19" fill="#3B82F6" fontSize="9" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
@@ -267,11 +280,9 @@ export const RaceTrack: React.FC = () => {
               Recepção & Triagem
             </text>
 
-            {/* Barrier Gate Arm (Cancela) */}
             <line x1="110" y1="25" x2="140" y2="25" stroke="#EF4444" strokeWidth="4" strokeDasharray="6 3" />
             <circle cx="110" cy="25" r="4" fill="#3B82F6" />
 
-            {/* Start Lights (Semáforo) */}
             <g transform="translate(130, -20)">
               <rect x="0" y="0" width="24" height="12" rx="3" fill="#0F172A" stroke="#38BDF8" strokeWidth="1" />
               <circle cx="6" cy="6" r="3" fill="#EF4444" />
@@ -292,7 +303,6 @@ export const RaceTrack: React.FC = () => {
             <text x="70" y="38" fill="#94A3B8" fontSize="8" fontFamily="sans-serif" textAnchor="middle">
               Análise Técnica & Scanner
             </text>
-            {/* Diagnostic Scanner Bay Icon */}
             <circle cx="12" cy="38" r="5" fill="#06B6D4" opacity="0.3" />
           </g>
 
@@ -300,15 +310,12 @@ export const RaceTrack: React.FC = () => {
           {/* SECTOR 3: TORRE DE CONTROLE / ORÇAMENTO */}
           {/* ========================================================================= */}
           <g transform="translate(630, 30)">
-            {/* Multi-tier Circular/Octagonal Tower Structure */}
             <path d="M 30,80 L 100,80 L 95,15 L 35,15 Z" fill="#1E293B" stroke="#EAB308" strokeWidth="1.5" />
             <rect x="25" y="35" width="80" height="22" rx="4" fill="#141A24" stroke="#EAB308" strokeWidth="1" />
             <text x="65" y="50" fill="#EAB308" fontSize="9" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
               3. ORÇAMENTO
             </text>
-            {/* Tower Observation Deck Glass */}
             <rect x="40" y="20" width="50" height="10" rx="2" fill="#38BDF8" opacity="0.6" />
-            {/* Antenna Radar Dish */}
             <line x1="65" y1="15" x2="65" y2="2" stroke="#EAB308" strokeWidth="2" />
             <circle cx="65" cy="2" r="3" fill="#EAB308" className="animate-ping" />
             <text x="65" y="72" fill="#CBD5E1" fontSize="8" textAnchor="middle" fontFamily="sans-serif">
@@ -317,30 +324,31 @@ export const RaceTrack: React.FC = () => {
           </g>
 
           {/* ========================================================================= */}
-          {/* SECTOR 4: COMPLEXO DOS BOXES (BOX 01 A 10) - EXECUÇÃO */}
+          {/* SECTOR 4: COMPLEXO DOS BOXES DINÂMICOS (5 A 20 BOXES) - EXECUÇÃO */}
           {/* ========================================================================= */}
-          <g transform="translate(240, 210)">
+          <g transform="translate(230, 210)">
             {/* Outer Pit Building Roof & Structure Frame */}
-            <rect x="0" y="0" width="450" height="120" rx="12" fill="#141A24" stroke="#FF6B00" strokeWidth="2" />
+            <rect x="0" y="0" width="480" height="120" rx="12" fill="#141A24" stroke="#FF6B00" strokeWidth="2" />
             
             {/* Header Title Banner */}
-            <rect x="10" y="6" width="430" height="20" rx="4" fill="#1B2330" />
-            <text x="225" y="20" fill="#FF6B00" fontSize="10" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
-              4. EXECUÇÃO — COMPLEXO DOS BOXES (OFICINA PRINCIPAL)
+            <rect x="10" y="6" width="460" height="20" rx="4" fill="#1B2330" />
+            <text x="240" y="20" fill="#FF6B00" fontSize="10" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
+              4. EXECUÇÃO — COMPLEXO DOS BOXES ({totalBoxesCount} BOXES DINÂMICOS)
             </text>
 
-            {/* 10 Individual Pit Bays with Lifts */}
-            {pitBoxSlots.map(({ boxNum, pBox, mech, currentVehicle }, idx) => {
-              const bayX = 15 + idx * 42;
+            {/* Render Dynamic Pit Bays */}
+            {dynamicPitSlots.map(({ boxIndex, boxNum, boxX, pBox, mech, currentVehicle }) => {
+              const bayWidth = Math.max(18, boxWidth - 4);
+              const bayXInBuilding = boxX - 230 - bayWidth / 2;
               const isOccupied = !!currentVehicle;
 
               return (
-                <g key={boxNum} transform={`translate(${bayX}, 32)`}>
+                <g key={pBox.id} transform={`translate(${bayXInBuilding}, 32)`}>
                   {/* Bay Container */}
                   <rect
                     x="0"
                     y="0"
-                    width="38"
+                    width={bayWidth}
                     height="78"
                     rx="4"
                     fill={isOccupied ? '#1E293B' : '#0F172A'}
@@ -349,12 +357,12 @@ export const RaceTrack: React.FC = () => {
                   />
 
                   {/* Box Number Header */}
-                  <rect x="2" y="2" width="34" height="12" rx="2" fill="#0B0F17" />
+                  <rect x="2" y="2" width={Math.max(14, bayWidth - 4)} height="12" rx="2" fill="#0B0F17" />
                   <text
-                    x="19"
+                    x={bayWidth / 2}
                     y="11"
                     fill={isOccupied ? '#FF6B00' : '#94A3B8'}
-                    fontSize="8"
+                    fontSize={totalBoxesCount > 12 ? '7' : '8'}
                     fontWeight="extrabold"
                     fontFamily="monospace"
                     textAnchor="middle"
@@ -362,19 +370,20 @@ export const RaceTrack: React.FC = () => {
                     {boxNum < 10 ? `0${boxNum}` : boxNum}
                   </text>
 
-                  {/* Two-Post Automotive Hydraulic Lift (Elevador Automotivo) */}
-                  <rect x="4" y="22" width="4" height="42" rx="1" fill="#475569" />
-                  <rect x="30" y="22" width="4" height="42" rx="1" fill="#475569" />
-                  {/* Lift Arms */}
-                  <line x1="4" y1="42" x2="34" y2="42" stroke="#64748B" strokeWidth="2" />
+                  {/* Hydraulic 2-Post Lift */}
+                  <rect x="3" y="22" width="3" height="42" rx="1" fill="#475569" />
+                  <rect x={bayWidth - 6} y="22" width="3" height="42" rx="1" fill="#475569" />
+                  <line x1="3" y1="42" x2={bayWidth - 3} y2="42" stroke="#64748B" strokeWidth="1.5" />
 
                   {/* Workbench / Tool Cabinet */}
-                  <rect x="10" y="66" width="18" height="8" rx="1" fill="#334155" />
+                  {bayWidth >= 26 && (
+                    <rect x={(bayWidth - 16) / 2} y="66" width="16" height="8" rx="1" fill="#334155" />
+                  )}
 
                   {/* Mechanic Name Tag */}
-                  {mech && (
+                  {mech && bayWidth >= 22 && (
                     <text
-                      x="19"
+                      x={bayWidth / 2}
                       y="60"
                       fill="#E2E8F0"
                       fontSize="6"
@@ -389,7 +398,7 @@ export const RaceTrack: React.FC = () => {
 
                   {/* Status LED */}
                   <circle
-                    cx="19"
+                    cx={bayWidth / 2}
                     cy="18"
                     r="2.5"
                     fill={isOccupied ? '#FF6B00' : '#10B981'}
@@ -413,10 +422,8 @@ export const RaceTrack: React.FC = () => {
               Aguard. Peças / Autorização
             </text>
 
-            {/* Hazard Traffic Cones Icons */}
             <polygon points="20,70 15,76 25,76" fill="#F97316" />
             <polygon points="100,70 95,76 105,76" fill="#F97316" />
-            {/* Warning Light Beacon */}
             <circle cx="60" cy="55" r="8" fill="#EF4444" opacity="0.3" className="animate-ping" />
             <circle cx="60" cy="55" r="4" fill="#EF4444" />
           </g>
@@ -450,10 +457,10 @@ export const RaceTrack: React.FC = () => {
           </g>
 
           {/* ========================================================================= */}
-          {/* SECTOR 8: LINHA DE CHEGADA & PÓDIO (ENTREGA) */}
+          {/* SECTOR 8: LINHA DE CHEGADA & NOVA LOCALIZAÇÃO DO PÓDIO (FORA DA PISTA) */}
           {/* ========================================================================= */}
-          {/* Chequered Finish Line Arch Gantry */}
-          <g transform="translate(820, 520)">
+          {/* Chequered Finish Line Arch Gantry Over Main Circuit Track */}
+          <g transform="translate(820, 510)">
             <line x1="0" y1="-20" x2="0" y2="20" stroke="#FFF" strokeWidth="6" strokeDasharray="4 4" />
             <rect x="-25" y="-35" width="50" height="14" rx="3" fill="#0F172A" stroke="#FFF" strokeWidth="1" />
             <text x="0" y="-25" fill="#FFF" fontSize="8" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
@@ -461,27 +468,37 @@ export const RaceTrack: React.FC = () => {
             </text>
           </g>
 
-          {/* Podium Platform (3-Tier Steps) */}
-          <g transform="translate(630, 480)">
-            <rect x="0" y="0" width="160" height="65" rx="10" fill="#141A24" stroke="#F59E0B" strokeWidth="1.5" />
-            <rect x="5" y="5" width="150" height="20" rx="4" fill="#451A03" />
-            <text x="80" y="19" fill="#F59E0B" fontSize="9" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
-              8. PÓDIO DE ENTREGA
+          {/* RELOCATED PODIUM: Positioned in green area below Pit Box Complex */}
+          <g transform="translate(520, 470)">
+            {/* Spotlight Beam onto Podium Area */}
+            <path d="M 0,-10 L 180,-10 L 160,110 L 20,110 Z" fill="url(#podiumSpotlight)" />
+
+            {/* Podium Base Enclosure */}
+            <rect x="0" y="0" width="180" height="100" rx="12" fill="#141A24" stroke="#F59E0B" strokeWidth="2" />
+            <rect x="8" y="6" width="164" height="20" rx="4" fill="#451A03" />
+            <text x="90" y="20" fill="#F59E0B" fontSize="10" fontWeight="extrabold" fontFamily="monospace" textAnchor="middle">
+              8. CERIMÔNIA DO PÓDIO & ENTREGA
             </text>
 
-            {/* Podium Blocks: 2nd, 1st, 3rd */}
-            {/* 2nd Place */}
-            <rect x="35" y="40" width="25" height="18" fill="#94A3B8" rx="2" />
-            <text x="47" y="52" fill="#0F172A" fontSize="8" fontWeight="extrabold" textAnchor="middle">2</text>
-            {/* 1st Place */}
-            <rect x="65" y="32" width="30" height="26" fill="#F59E0B" rx="2" />
-            <text x="80" y="47" fill="#0F172A" fontSize="10" fontWeight="extrabold" textAnchor="middle">1</text>
-            {/* 3rd Place */}
-            <rect x="100" y="44" width="25" height="14" fill="#D97706" rx="2" />
-            <text x="112" y="54" fill="#0F172A" fontSize="8" fontWeight="extrabold" textAnchor="middle">3</text>
+            {/* Podium Victory Steps (2nd, 1st, 3rd) */}
+            {/* 2nd Place Silver Step */}
+            <rect x="35" y="55" width="30" height="30" fill="#94A3B8" rx="3" stroke="#CBD5E1" strokeWidth="1" />
+            <text x="50" y="74" fill="#0F172A" fontSize="12" fontWeight="extrabold" textAnchor="middle">2</text>
+            
+            {/* 1st Place Gold Step */}
+            <rect x="70" y="42" width="40" height="43" fill="#F59E0B" rx="3" stroke="#FEF08A" strokeWidth="1.5" />
+            <text x="90" y="66" fill="#0F172A" fontSize="16" fontWeight="extrabold" textAnchor="middle">1</text>
+            <text x="90" y="80" fill="#0F172A" fontSize="8" fontWeight="bold" textAnchor="middle">🏆</text>
+
+            {/* 3rd Place Bronze Step */}
+            <rect x="115" y="62" width="30" height="23" fill="#D97706" rx="3" stroke="#FBBF24" strokeWidth="1" />
+            <text x="130" y="78" fill="#0F172A" fontSize="11" fontWeight="extrabold" textAnchor="middle">3</text>
+
+            {/* Delivery Bay Floor Stripes */}
+            <line x1="10" y1="92" x2="170" y2="92" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 4" />
           </g>
 
-          {/* Connection Neon Line from Selected Car to Assigned Pit Box */}
+          {/* Connection Line from Selected Car to Assigned Pit Box */}
           {selectedVehicle && assignedBox && (
             <path
               d={`M ${
@@ -489,16 +506,20 @@ export const RaceTrack: React.FC = () => {
                   selectedVehicle.visualState,
                   0,
                   selectedVehicle.progress,
-                  assignedBox.number
+                  assignedBox.number,
+                  totalBoxesCount
                 ).x
               },${
                 PhysicsEngine.getVehiclePosition(
                   selectedVehicle.visualState,
                   0,
                   selectedVehicle.progress,
-                  assignedBox.number
+                  assignedBox.number,
+                  totalBoxesCount
                 ).y
-              } L ${255 + (assignedBox.number - 1) * 42}, 242`}
+              } L ${
+                calculateDynamicBoxX(assignedBox.number - 1, totalBoxesCount, pitBuildingStartX, pitBuildingWidth).boxX
+              }, 242`}
               fill="none"
               stroke="#FF6B00"
               strokeWidth="2.5"
@@ -517,7 +538,8 @@ export const RaceTrack: React.FC = () => {
               vehicle.visualState,
               idx,
               vehicle.progress,
-              boxNum
+              boxNum,
+              totalBoxesCount
             );
             const isSelected = vehicle.id === selectedVehicleId;
 
@@ -551,7 +573,7 @@ export const RaceTrack: React.FC = () => {
             />
             {vehicles.map((v, i) => {
               const bNum = v.assignedBoxId ? pitBoxes.find((b) => b.id === v.assignedBoxId)?.number : undefined;
-              const p = PhysicsEngine.getVehiclePosition(v.visualState, i, v.progress, bNum);
+              const p = PhysicsEngine.getVehiclePosition(v.visualState, i, v.progress, bNum, totalBoxesCount);
               return <circle key={v.id} cx={p.x} cy={p.y} r="28" fill={v.color} />;
             })}
           </svg>
@@ -560,4 +582,5 @@ export const RaceTrack: React.FC = () => {
     </div>
   );
 };
+
 

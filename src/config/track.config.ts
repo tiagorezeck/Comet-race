@@ -23,7 +23,7 @@ export const SECTOR_CONFIGS: Record<VisualState, { name: string; color: string; 
   WARRANTY_PIT: { name: 'Box de Garantia', color: '#DC2626', bg: 'rgba(220, 38, 38, 0.2)', icon: 'ShieldAlert' },
 };
 
-// 12 Nodes forming a sleek 2.5D isometric race circuit loop with pit lane branching
+// 12 Nodes forming a sleek 2.5D isometric race circuit loop
 export const TRACK_NODES: TrackNode[] = [
   // 1. Parking / Entry Gate
   { id: 'node_parked', name: 'Estacionamento de Entrada', visualState: 'GATE_PARKED', x: 100, y: 150, rotation: 30, sectorId: 'PARKED' },
@@ -37,9 +37,7 @@ export const TRACK_NODES: TrackNode[] = [
   { id: 'node_approval', name: 'Torre de Controle (Aprovação)', visualState: 'TOWER_APPROVAL', x: 690, y: 110, rotation: 0, sectorId: 'APPROVAL' },
   
   // 4. Pit Lane / Boxes Complex (Main execution area)
-  { id: 'node_box_1', name: 'Box 01 (Carlos)', visualState: 'BOX_RUNNING', x: 310, y: 290, rotation: 0, sectorId: 'BOX' },
-  { id: 'node_box_2', name: 'Box 02 (Pedro)', visualState: 'BOX_RUNNING', x: 355, y: 290, rotation: 0, sectorId: 'BOX' },
-  { id: 'node_box_3', name: 'Box 03 (João)', visualState: 'BOX_RUNNING', x: 400, y: 290, rotation: 0, sectorId: 'BOX' },
+  { id: 'node_box_1', name: 'Box Execução', visualState: 'BOX_RUNNING', x: 310, y: 290, rotation: 0, sectorId: 'BOX' },
   
   // 5. StandBy Patio (Side track branch)
   { id: 'node_standby', name: 'Área de Stand By', visualState: 'PATIO_STANDBY', x: 100, y: 380, rotation: 90, sectorId: 'STANDBY' },
@@ -50,8 +48,8 @@ export const TRACK_NODES: TrackNode[] = [
   // 7. Finish Straight
   { id: 'node_finish', name: 'Reta Final', visualState: 'FINISH_LINE', x: 910, y: 490, rotation: 180, sectorId: 'FINISH' },
   
-  // 8. Podium / Customer Delivery
-  { id: 'node_podium', name: 'Pódio de Entrega', visualState: 'PODIUM_DELIVERY', x: 720, y: 520, rotation: 180, sectorId: 'PODIUM' },
+  // 8. Podium / Customer Delivery (Relocated in green area off-track below boxes)
+  { id: 'node_podium', name: 'Pódio de Entrega', visualState: 'PODIUM_DELIVERY', x: 600, y: 520, rotation: 0, sectorId: 'PODIUM' },
 ];
 
 export const TRACK_CONFIG = {
@@ -66,3 +64,19 @@ export const TRACK_CONFIG = {
   escapeColor: '#993322',
   accentOrange: '#FF6B00',
 };
+
+// Calculates dynamic box width and X coordinate for any box index in [0..totalBoxesCount-1]
+export function calculateDynamicBoxX(
+  boxIndex: number,
+  totalBoxesCount: number,
+  pitBuildingStartX: number = 240,
+  pitBuildingWidth: number = 460
+): { boxX: number; boxWidth: number } {
+  const count = Math.max(5, Math.min(20, totalBoxesCount || 10));
+  const boxWidth = Math.min(42, pitBuildingWidth / count);
+  const totalOccupiedWidth = count * boxWidth;
+  const startX = pitBuildingStartX + (pitBuildingWidth - totalOccupiedWidth) / 2;
+  const boxX = startX + boxIndex * boxWidth + boxWidth / 2;
+  return { boxX, boxWidth };
+}
+
