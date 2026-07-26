@@ -1,0 +1,6 @@
+{
+  "name": "COMET Race Control",
+  "description": "Central de Controle de Operações Automotivas em formato de Autódromo Gamificado - COMET Flow Experience Platform",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
