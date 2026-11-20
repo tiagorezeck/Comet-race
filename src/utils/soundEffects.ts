@@ -16,6 +16,85 @@ class SoundFX {
     }
   }
 
+  // High precision click/pickup sound (from prompt)
+  playClick() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.06);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.06);
+  }
+
+  // Dual-frequency success chime (from prompt)
+  playSuccess() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(800, this.ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.22);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.22);
+  }
+
+  // Drag pickup swoosh
+  playDrag() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.09);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.09);
+  }
+
+  // Soft drop outside zone
+  playDropOutside() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.12);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.12);
+  }
+
   // Soft check-in bip
   playCheckIn() {
     if (!this.enabled) return;

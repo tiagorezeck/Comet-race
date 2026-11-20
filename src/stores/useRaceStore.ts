@@ -16,6 +16,7 @@ interface RaceStore {
   selectedVehicleId: string | null;
   searchQuery: string;
   activeView: 'RACE' | 'KANBAN' | 'PLATFORM';
+  trackRenderMode: '3D' | '2D';
   activeThemeId: ThemeType;
   weather: WeatherType;
   isLiveSimulationActive: boolean;
@@ -27,6 +28,7 @@ interface RaceStore {
   selectVehicle: (id: string | null) => void;
   setSearchQuery: (query: string) => void;
   setActiveView: (view: 'RACE' | 'KANBAN' | 'PLATFORM') => void;
+  setTrackRenderMode: (mode: '3D' | '2D') => void;
   setActiveTheme: (themeId: ThemeType) => void;
   toggleLiveSimulation: () => void;
   toggleSound: () => void;
@@ -105,9 +107,9 @@ const INITIAL_BOXES: PitBox[] = [
 const INITIAL_VEHICLES: Vehicle[] = [
   {
     id: 'veh_1',
-    plate: 'ABC-1234',
-    brand: 'Toyota',
-    model: 'Hilux SRX 2.8',
+    plate: 'GT3-2026',
+    brand: 'Ferrari',
+    model: '296 GT3 Evo',
     color: '#EF4444',
     clientName: 'Roberto Alves',
     clientPhone: '(11) 98877-6655',
@@ -122,8 +124,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 75,
     trackProgress: 45,
     osNumber: 'OS-8841',
-    serviceDescription: 'Revisão de 60.000km, substituição de discos de freio e óleo sintético.',
-    costEstimate: 1850,
+    serviceDescription: 'Ajuste de rigidez torsional, calibração do mapa de injeção e troca do splitter de carbono.',
+    costEstimate: 18500,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -138,9 +140,9 @@ const INITIAL_VEHICLES: Vehicle[] = [
   },
   {
     id: 'veh_2',
-    plate: 'RCE-2026',
+    plate: 'RCE-911',
     brand: 'Porsche',
-    model: '911 Carrera GTS',
+    model: '911 GT3 RS (992)',
     color: '#F59E0B',
     clientName: 'Fernanda Lima',
     clientPhone: '(11) 97766-5544',
@@ -155,8 +157,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 50,
     trackProgress: 52,
     osNumber: 'OS-8842',
-    serviceDescription: 'Alinhamento 3D de precisão e troca das pastilhas esportivas.',
-    costEstimate: 3200,
+    serviceDescription: 'Configuração da asa traseira DRS e alinhamento do sistema de suspensão ativa.',
+    costEstimate: 23200,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -171,9 +173,9 @@ const INITIAL_VEHICLES: Vehicle[] = [
   },
   {
     id: 'veh_3',
-    plate: 'CMT-9988',
-    brand: 'Honda',
-    model: 'Civic Touring',
+    plate: 'STO-0063',
+    brand: 'Lamborghini',
+    model: 'Huracán STO GT',
     color: '#3B82F6',
     clientName: 'Marcos Vinicius',
     clientPhone: '(11) 96655-4433',
@@ -187,8 +189,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 25,
     trackProgress: 20,
     osNumber: 'OS-8843',
-    serviceDescription: 'Diagnóstico de ruído na suspensão dianteira esquerda.',
-    costEstimate: 650,
+    serviceDescription: 'Diagnóstico telemétrico no sensor de pressão do freio cerâmico dianteiro.',
+    costEstimate: 12650,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -203,9 +205,9 @@ const INITIAL_VEHICLES: Vehicle[] = [
   },
   {
     id: 'veh_4',
-    plate: 'KNB-5544',
+    plate: 'M4-GT3',
     brand: 'BMW',
-    model: '330i M Sport',
+    model: 'M4 GT3 Competition',
     color: '#A855F7',
     clientName: 'Gabriel Siqueira',
     clientPhone: '(11) 95544-3322',
@@ -218,8 +220,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 35,
     trackProgress: 32,
     osNumber: 'OS-8844',
-    serviceDescription: 'Aguardando aprovação do orçamento para substituição do radiador.',
-    costEstimate: 4500,
+    serviceDescription: 'Aguardando aprovação para substituição do radiador de alta performance.',
+    costEstimate: 28500,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -234,9 +236,9 @@ const INITIAL_VEHICLES: Vehicle[] = [
   },
   {
     id: 'veh_5',
-    plate: 'STB-7711',
-    brand: 'Volkswagen',
-    model: 'Amarok V6',
+    plate: 'MCL-720S',
+    brand: 'McLaren',
+    model: '720S GT3 EVO',
     color: '#10B981',
     clientName: 'Juliana Paes',
     clientPhone: '(11) 94433-2211',
@@ -250,8 +252,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 40,
     trackProgress: 60,
     osNumber: 'OS-8845',
-    serviceDescription: 'Aguardando chegada da bomba de combustível do fornecedor.',
-    costEstimate: 2100,
+    serviceDescription: 'Aguardando entrega de novo conjunto turbocompressor de corrida.',
+    costEstimate: 34100,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -266,9 +268,9 @@ const INITIAL_VEHICLES: Vehicle[] = [
   },
   {
     id: 'veh_6',
-    plate: 'TST-8822',
-    brand: 'Audi',
-    model: 'RS6 Avant',
+    plate: 'AMG-GT3',
+    brand: 'Mercedes-AMG',
+    model: 'GT3 Edition 55',
     color: '#06B6D4',
     clientName: 'Lucas Mendes',
     clientPhone: '(11) 93322-1100',
@@ -282,8 +284,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 88,
     trackProgress: 75,
     osNumber: 'OS-8846',
-    serviceDescription: 'Teste dinâmico de frenagem e mapa de injeção na pista.',
-    costEstimate: 5800,
+    serviceDescription: 'Teste dinâmico de telemetria, aerodinâmica e temperatura de pneus em reta.',
+    costEstimate: 19800,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -298,9 +300,9 @@ const INITIAL_VEHICLES: Vehicle[] = [
   },
   {
     id: 'veh_7',
-    plate: 'POD-1001',
+    plate: 'C8R-2026',
     brand: 'Chevrolet',
-    model: 'Corvette C8',
+    model: 'Corvette C8.R GT3',
     color: '#EAB308',
     clientName: 'Camila Pitanga',
     clientPhone: '(11) 92211-0099',
@@ -314,8 +316,8 @@ const INITIAL_VEHICLES: Vehicle[] = [
     progress: 100,
     trackProgress: 100,
     osNumber: 'OS-8840',
-    serviceDescription: 'Troca de escape de performance e detalhamento cerâmico.',
-    costEstimate: 7200,
+    serviceDescription: 'Instalação de escape titânio racing e vitrificação cerâmica de alta resistência.',
+    costEstimate: 27200,
     reworkCount: 0,
     hasWarranty: false,
     checklist: {
@@ -375,6 +377,7 @@ export const useRaceStore = create<RaceStore>((set, get) => ({
   selectedVehicleId: 'veh_1',
   searchQuery: '',
   activeView: 'RACE',
+  trackRenderMode: '3D',
   activeThemeId: 'RACE',
   weather: 'SUNNY',
   isLiveSimulationActive: false,
@@ -400,6 +403,7 @@ export const useRaceStore = create<RaceStore>((set, get) => ({
   },
 
   setActiveView: (view) => set({ activeView: view }),
+  setTrackRenderMode: (mode) => set({ trackRenderMode: mode }),
   setActiveTheme: (themeId) => set({ activeThemeId: themeId }),
   toggleLiveSimulation: () => set((state) => ({ isLiveSimulationActive: !state.isLiveSimulationActive })),
   toggleSound: () => {
